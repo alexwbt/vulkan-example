@@ -1,4 +1,4 @@
-#include "window_initialization.h"
+#include "window.h"
 
 #include <cstdint>
 
