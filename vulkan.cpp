@@ -49,7 +49,7 @@ VkInstance initVulkan(VkApplicationInfo info)
 	*/
 	if (enableValidationLayers)
 	{
-		if (!checkValidationLayerSupport())
+		if (!checkValidationLayerSupport()) // layer.cpp
 		{
 			throw std::runtime_error("validation layers requested, but not available!");
 		}

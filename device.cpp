@@ -3,9 +3,14 @@
 #include <stdexcept>
 #include <vector>
 
+#include "queue.h"
+
 bool isDeviceSuitable(VkPhysicalDevice device)
 {
-	return true;
+	// Check which queue families(that supports the commands that we want to use) are supperted
+	// queue.cpp
+	QueueFamilyIndices indices = findQueueFamilies(device);
+	return indices.isComplete();
 }
 
 VkPhysicalDevice selectPhysicalDevice(VkInstance instance)
