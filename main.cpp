@@ -3,73 +3,77 @@
 
 #include "window.h"
 #include "vulkan.h"
-#include "device.h"
+#include "physical_device.h"
+#include "logical_device.h"
 
 class HelloTriangleApplication
 {
 public:
-	void run()
-	{
-		init();
-		mainLoop();
-		cleanup();
-	}
+    void run()
+    {
+        init();
+        mainLoop();
+        cleanup();
+    }
 
 private:
-	GLFWwindow* window;
-	VkInstance instance;
-	VkPhysicalDevice device;
+    GLFWwindow* window;
+    VkInstance instance;
+    VkPhysicalDevice physicalDevice;
+    VkDevice logicalDevice;
+    VkQueue graphicsQueue;
 
-	void init()
-	{
-		// Initialize GLFW and create window.
-		// window_initialization.cpp
-		window = initWindow();
+    void init()
+    {
+        // Initialize GLFW and create window.
+        window = initWindow(); // window.cpp
 
-		// Application configuration for creating Vulkan instance.
-		// (technically optional)
-		VkApplicationInfo appInfo = createHelloTriangleAppInfo();
-		// Create Vuklan instance, list available extensions and apply validation layers(debug mode only).
-		// vulkan_initialization.cpp
-		instance = initVulkan(appInfo);
+        // Application configuration for creating Vulkan instance.
+        // (technically optional)
+        VkApplicationInfo appInfo = createHelloTriangleAppInfo(); // vulkan.cpp
+        // Create Vuklan instance, list available extensions and apply validation layers(debug mode only).
+        instance = initVulkan(appInfo); // vulkan.cpp
 
-		// Select best suited physical device(graphics card).
-		device = selectPhysicalDevice(instance);
-	}
+        // Select best suited physical device(graphics card).
+        physicalDevice = selectPhysicalDevice(instance); // physical_device.cpp
 
-	void mainLoop()
-	{
-		while (!glfwWindowShouldClose(window))
-		{
-			glfwPollEvents();
-		}
-	}
+        // Create logical device to interface physical device.
+        logicalDevice = createLogicalDevice(physicalDevice, &graphicsQueue); // logical_device.cpp
+    }
 
-	void cleanup()
-	{
-		// Destroy window and terminate GLFW.
-		// window_initialization.cpp
-		terminateWindow(window);
+    void mainLoop()
+    {
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+        }
+    }
 
-		// Destroy Vulkan instance
-		// vulkan_initialization.cpp
-		destroyVulkanInstance(instance);
-	}
+    void cleanup()
+    {
+        // Destroy window and terminate GLFW.
+        terminateWindow(window); // window.cpp
+
+        // Destroy Vulkan instance.
+        destroyVulkanInstance(instance); // vulkan.cpp
+
+        // Destroy logical device.
+        destroyLogicalDevice(logicalDevice); // logical_device.cpp
+    }
 };
 
 int main()
 {
-	HelloTriangleApplication app;
+    HelloTriangleApplication app;
+    try
+    {
+        app.run();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	try
-	{
-		app.run();
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
