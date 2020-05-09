@@ -37,7 +37,7 @@ private:
         // Select best suited physical device(graphics card).
         physicalDevice = selectPhysicalDevice(instance); // physical_device.cpp
 
-        // Create logical device to interface physical device.
+        // Create logical device and retrieve queue handle to interface physical device.
         logicalDevice = createLogicalDevice(physicalDevice, &graphicsQueue); // logical_device.cpp
     }
 
@@ -51,14 +51,14 @@ private:
 
     void cleanup()
     {
-        // Destroy window and terminate GLFW.
-        terminateWindow(window); // window.cpp
+        // Destroy logical device (before Vulkan instance).
+        destroyLogicalDevice(logicalDevice); // logical_device.cpp
 
         // Destroy Vulkan instance.
         destroyVulkanInstance(instance); // vulkan.cpp
 
-        // Destroy logical device.
-        destroyLogicalDevice(logicalDevice); // logical_device.cpp
+        // Destroy window and terminate GLFW.
+        terminateWindow(window); // window.cpp
     }
 };
 
