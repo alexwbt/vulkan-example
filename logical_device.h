@@ -4,5 +4,5 @@
 
 #include "queue.h"
 
-VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkQueue *graphicsQueue);
+VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkQueue* graphicsQueue, VkQueue* presentQueue);
 void destroyLogicalDevice(VkDevice device);

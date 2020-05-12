@@ -2,4 +2,4 @@
 
 #include <vulkan/vulkan.h>
 
-VkPhysicalDevice selectPhysicalDevice(VkInstance instance);
+VkPhysicalDevice selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);

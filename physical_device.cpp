@@ -5,15 +5,15 @@
 
 #include "queue.h"
 
-bool isDeviceSuitable(VkPhysicalDevice device)
+bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     // Check which queue families(that supports the commands that we want to use) are supperted
     // queue.cpp
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    QueueFamilyIndices indices = findQueueFamilies(device, surface);
     return indices.isComplete();
 }
 
-VkPhysicalDevice selectPhysicalDevice(VkInstance instance)
+VkPhysicalDevice selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
 {
     // VkPhysicalDevice object will be implicitly destroyed when the VkInstance is destroyed
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -30,7 +30,7 @@ VkPhysicalDevice selectPhysicalDevice(VkInstance instance)
 
     // Select first suitable device.
     for (const auto& device : devices) {
-        if (isDeviceSuitable(device)) {
+        if (isDeviceSuitable(device, surface)) {
             physicalDevice = device;
             break;
         }

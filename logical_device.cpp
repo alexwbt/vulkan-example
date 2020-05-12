@@ -3,30 +3,37 @@
 #include "layer.h"
 
 #include <stdexcept>
+#include <set>
 
-VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkQueue *graphicsQueue)
+VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkQueue* graphicsQueue, VkQueue* presentQueue)
 {
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
 
-    // Specify number of required queues(to be created) for a single family
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-    queueCreateInfo.queueCount = 1;
-
-    // Assign priorities to influence the scheduling of command buffer execution.
+    // Create multiple queue families that are necessary for the required queue.
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos; // List of create info struct.
+    std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() }; // required queue.
     float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+    for (uint32_t queueFamily : uniqueQueueFamilies) {
+        // Specify number of required queues(to be created) for a single family
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+        queueCreateInfo.queueCount = 1;
+        // Assign priorities to influence the scheduling of command buffer execution.
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
 
     // Specify required device features. (e.g. geometry shaders)
     // Empty for now
     VkPhysicalDeviceFeatures deviceFeatures{};
 
-    // Create logical device with above two struct.
+    // Create logical device.
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
-    createInfo.queueCreateInfoCount = 1;
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
 
     /*
@@ -68,6 +75,7 @@ VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkQueue *graphicsQ
 
     // Retrieve queue handles for each queue family.
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, graphicsQueue);
+    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, presentQueue);
 
     return device;
 }

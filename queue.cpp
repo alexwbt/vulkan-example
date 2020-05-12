@@ -2,26 +2,34 @@
 
 #include <vector>
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device)
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr); // Get number of available queue families.
+
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data()); // Get properties of available queue families.
-
-    /*
-        VkQueueFamilyProperties contains details of the queue family,
-        including the type of operations that are supported
-        and the number of queues that can be created based on that family.
-        We need to find at least one queue family that supports VK_QUEUE_GRAPHICS_BIT.
-    */
+    
     for (int i = 0; i < queueFamilyCount; i++)
     {
+        // Find queue family that supports VK_QUEUE_GRAPHICS_BIT
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             indices.graphicsFamily = i;
+        }
+
+        // Find queue familt that has present Support 
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        if (presentSupport)
+        {
+            indices.presentFamily = i;
+        }
+
+        if (indices.isComplete())
+        {
             break;
         }
     }
