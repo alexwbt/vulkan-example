@@ -1,16 +1,41 @@
 #include "physical_device.h"
 
 #include <stdexcept>
-#include <vector>
+#include <set>
 
 #include "queue.h"
 
+bool checkDeviceExtensionSupport(VkPhysicalDevice device)
+{
+    // Get number of supported extensions from device.
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    // Get properties of supported extensions from device.
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    // Clone list of required extensions
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    // Check if all required extensions are listed in availableExtensions.
+    for (const auto& extension : availableExtensions)
+    {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
+}
+
 bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
 {
-    // Check which queue families(that supports the commands that we want to use) are supperted
-    // queue.cpp
-    QueueFamilyIndices indices = findQueueFamilies(device, surface);
-    return indices.isComplete();
+    // Check which queue families(that supports the commands that we want to use) are supperted.
+    QueueFamilyIndices indices = findQueueFamilies(device, surface); // queue.cpp
+
+    // Check if physical device(GPU) supports reqruied extensions.
+    bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+    return indices.isComplete() && extensionsSupported;
 }
 
 VkPhysicalDevice selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)

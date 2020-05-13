@@ -14,13 +14,13 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surfa
     
     for (int i = 0; i < queueFamilyCount; i++)
     {
-        // Find queue family that supports VK_QUEUE_GRAPHICS_BIT
+        // Find queue family that supports VK_QUEUE_GRAPHICS_BIT (rendering)
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             indices.graphicsFamily = i;
         }
 
-        // Find queue familt that has present Support 
+        // Find queue familt that has presentation support. (presents rendered image to window)
         VkBool32 presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
         if (presentSupport)

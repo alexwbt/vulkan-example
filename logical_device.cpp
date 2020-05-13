@@ -1,6 +1,7 @@
 #include "logical_device.h"
 
 #include "layer.h"
+#include "physical_device.h"
 
 #include <stdexcept>
 #include <set>
@@ -54,11 +55,15 @@ VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfa
         However, it is still a good idea to set them anyway to be
         compatible with older implementations:
     */
-    createInfo.enabledExtensionCount = 0;
 
+    // Enable requied extensions.
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size()); // physical_device.h
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    
+    // Enable validation layers. (in debug mode)
     if (enableValidationLayers) // layer.h
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size()); // layer.h
         createInfo.ppEnabledLayerNames = validationLayers.data();
     }
     else
