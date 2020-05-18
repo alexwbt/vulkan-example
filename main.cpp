@@ -6,6 +6,7 @@
 #include "physical_device.h"
 #include "logical_device.h"
 #include "surface.h"
+#include "swapchain.h"
 
 class HelloTriangleApplication
 {
@@ -25,6 +26,7 @@ private:
     VkDevice logicalDevice;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+    VkSwapchainKHR swapchain;
 
     void init()
     {
@@ -44,6 +46,9 @@ private:
 
         // Create logical device and retrieve queue handle to interface physical device.
         logicalDevice = createLogicalDevice(physicalDevice, surface, &graphicsQueue, &presentQueue); // logical_device.cpp
+
+        // Create swap chain (frame buffer).
+        swapchain = createSwapchain(physicalDevice, logicalDevice, surface); // swapchain.cpp
     }
 
     void mainLoop()
@@ -56,6 +61,9 @@ private:
 
     void cleanup()
     {
+        // Destroy swap chain.
+        destroySwapchain(logicalDevice, swapchain); // swapchain.cpp
+
         // Destroy logical device (before Vulkan instance).
         destroyLogicalDevice(logicalDevice); // logical_device.cpp
 
