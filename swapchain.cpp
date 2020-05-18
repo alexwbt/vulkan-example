@@ -216,8 +216,8 @@ VkSwapchainKHR createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logical
     }
 
     // Also return image format and extent.
-    swapchainImageFormat = &surfaceFormat.format;
-    swapchainExtent = &extent;
+    *swapchainImageFormat = surfaceFormat.format;
+    *swapchainExtent = extent;
 
     return swapChain;
 }

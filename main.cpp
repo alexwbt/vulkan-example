@@ -21,14 +21,20 @@ public:
 
 private:
     GLFWwindow* window;
+
     VkInstance instance;
+
     VkSurfaceKHR surface;
+
     VkPhysicalDevice physicalDevice;
+
     VkDevice logicalDevice;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
+    std::vector<VkImageView> swapchainImageViews;
     VkFormat swapchainImageFormat;
     VkExtent2D swapchainExtent;
 
@@ -51,12 +57,12 @@ private:
         // Create logical device and retrieve queue handle to interface physical device.
         logicalDevice = createLogicalDevice(physicalDevice, surface, &graphicsQueue, &presentQueue); // logical_device.cpp
 
-        // Create swap chain (frame buffer).
-        // Also retrieve swap chain image format and extent.
+        // Create swap chain(frame buffer) and retrieve swap chain image format and extent.
         swapchain = createSwapchain(physicalDevice, logicalDevice, surface, &swapchainImageFormat, &swapchainExtent); // swapchain.cpp
-
         // Revrieve handles of VkImages from swap chain.
         swapchainImages = retrieveSwapchainImages(logicalDevice, swapchain); // image.cpp
+        // Create image views.
+        swapchainImageViews = createImageViews(swapchainImages, swapchainImageFormat, logicalDevice); // image.cpp
     }
 
     void mainLoop()
