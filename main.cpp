@@ -7,6 +7,7 @@
 #include "logical_device.h"
 #include "surface.h"
 #include "swapchain.h"
+#include "image.h"
 
 class HelloTriangleApplication
 {
@@ -27,6 +28,9 @@ private:
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkSwapchainKHR swapchain;
+    std::vector<VkImage> swapchainImages;
+    VkFormat swapchainImageFormat;
+    VkExtent2D swapchainExtent;
 
     void init()
     {
@@ -48,7 +52,11 @@ private:
         logicalDevice = createLogicalDevice(physicalDevice, surface, &graphicsQueue, &presentQueue); // logical_device.cpp
 
         // Create swap chain (frame buffer).
-        swapchain = createSwapchain(physicalDevice, logicalDevice, surface); // swapchain.cpp
+        // Also retrieve swap chain image format and extent.
+        swapchain = createSwapchain(physicalDevice, logicalDevice, surface, &swapchainImageFormat, &swapchainExtent); // swapchain.cpp
+
+        // Revrieve handles of VkImages from swap chain.
+        swapchainImages = retrieveSwapchainImages(logicalDevice, swapchain); // image.cpp
     }
 
     void mainLoop()

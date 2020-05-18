@@ -107,7 +107,7 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& avai
 /*
     Swap extent is the resolution of the swap change images.
     Always equal to the resolution of the presentation window.
-    The range of the possible resolutions is defined in VkSurfaceCapabilitiesKHR. 
+    The range of the possible resolutions is defined in VkSurfaceCapabilitiesKHR.
 */
 VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
@@ -130,7 +130,7 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 }
 
 // Create swap chain.
-VkSwapchainKHR createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logicalDevice, VkSurfaceKHR surface)
+VkSwapchainKHR createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logicalDevice, VkSurfaceKHR surface, VkFormat* swapchainImageFormat, VkExtent2D* swapchainExtent)
 {
     // Get supported format, present mode and extent.
     SwapchainSupportDetails swapchainSupport = querySwapchainSupport(physicalDevice, surface);
@@ -147,7 +147,7 @@ VkSwapchainKHR createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logical
     {
         imageCount = swapchainSupport.capabilities.maxImageCount;
     }
-    
+
     // Swap chain create info.
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -214,6 +214,10 @@ VkSwapchainKHR createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logical
     {
         throw std::runtime_error("failed to create swap chain!");
     }
+
+    // Also return image format and extent.
+    swapchainImageFormat = &surfaceFormat.format;
+    swapchainExtent = &extent;
 
     return swapChain;
 }
