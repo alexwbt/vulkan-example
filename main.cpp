@@ -75,6 +75,9 @@ private:
 
     void cleanup()
     {
+        // Destroy image views.
+        destroyImageViews(logicalDevice, swapchainImageViews);
+
         // Destroy swap chain.
         destroySwapchain(logicalDevice, swapchain); // swapchain.cpp
 
