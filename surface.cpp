@@ -1,21 +1,26 @@
-#include "surface.h"
+#include "vulkan_example.h"
 
 #include <stdexcept>
 
-VkSurfaceKHR createSurface(VkInstance instance, GLFWwindow *window)
+namespace VulkanExample
 {
-    VkSurfaceKHR surface;
 
-    // Create window surface.
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+    VkSurfaceKHR createSurface(VkInstance instance, GLFWwindow* window)
     {
-        throw std::runtime_error("Failed to create window surface.");
+        VkSurfaceKHR surface;
+
+        // Create window surface.
+        if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create window surface.");
+        }
+
+        return surface;
     }
 
-    return surface;
-}
+    void destroySurface(VkInstance instance, VkSurfaceKHR surface)
+    {
+        vkDestroySurfaceKHR(instance, surface, nullptr);
+    }
 
-void destroySurface(VkInstance instance, VkSurfaceKHR surface)
-{
-    vkDestroySurfaceKHR(instance, surface, nullptr);
 }

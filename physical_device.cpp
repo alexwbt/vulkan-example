@@ -1,69 +1,72 @@
-#include "physical_device.h"
+#include "vulkan_example.h"
 
 #include <stdexcept>
 #include <set>
 
-#include "queue.h"
-
-bool checkDeviceExtensionSupport(VkPhysicalDevice device)
+namespace VulkanExample
 {
-    // Get number of supported extensions from device.
-    uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-    // Get properties of supported extensions from device.
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-    // Clone list of required extensions
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
-
-    // Check if all required extensions are listed in availableExtensions.
-    for (const auto& extension : availableExtensions)
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device)
     {
-        requiredExtensions.erase(extension.extensionName);
-    }
+        // Get number of supported extensions from device.
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-    return requiredExtensions.empty();
-}
+        // Get properties of supported extensions from device.
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
-{
-    // Check which queue families(that supports the commands that we want to use) are supperted.
-    QueueFamilyIndices indices = findQueueFamilies(device, surface); // queue.cpp
+        // Clone list of required extensions
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-    // Check if physical device(GPU) supports reqruied extensions.
-    bool extensionsSupported = checkDeviceExtensionSupport(device);
-
-    return indices.isComplete() && extensionsSupported;
-}
-
-VkPhysicalDevice selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
-{
-    // VkPhysicalDevice object will be implicitly destroyed when the VkInstance is destroyed
-    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr); // Get number of available devices.
-    if (deviceCount == 0)
-    {
-        // Throw error if there are no available device.
-        throw std::runtime_error("Failed to find GPU with Vulkan support.");
-    }
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()); // Get all available devices.
-
-    // Select first suitable device.
-    for (const auto& device : devices) {
-        if (isDeviceSuitable(device, surface)) {
-            physicalDevice = device;
-            break;
+        // Check if all required extensions are listed in availableExtensions.
+        for (const auto& extension : availableExtensions)
+        {
+            requiredExtensions.erase(extension.extensionName);
         }
-    }
-    if (physicalDevice == VK_NULL_HANDLE) {
-        // Throw error if there are no suitable device.
-        throw std::runtime_error("failed to find a suitable GPU!");
+
+        return requiredExtensions.empty();
     }
 
-    return physicalDevice;
+    bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
+    {
+        // Check which queue families(that supports the commands that we want to use) are supperted.
+        QueueFamilyIndices indices = findQueueFamilies(device, surface); // queue.cpp
+
+        // Check if physical device(GPU) supports reqruied extensions.
+        bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+        return indices.isComplete() && extensionsSupported;
+    }
+
+    VkPhysicalDevice selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface)
+    {
+        // VkPhysicalDevice object will be implicitly destroyed when the VkInstance is destroyed
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr); // Get number of available devices.
+        if (deviceCount == 0)
+        {
+            // Throw error if there are no available device.
+            throw std::runtime_error("Failed to find GPU with Vulkan support.");
+        }
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data()); // Get all available devices.
+
+        // Select first suitable device.
+        for (const auto& device : devices) {
+            if (isDeviceSuitable(device, surface)) {
+                physicalDevice = device;
+                break;
+            }
+        }
+        if (physicalDevice == VK_NULL_HANDLE) {
+            // Throw error if there are no suitable device.
+            throw std::runtime_error("failed to find a suitable GPU!");
+        }
+
+        return physicalDevice;
+    }
+
 }

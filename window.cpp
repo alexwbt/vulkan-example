@@ -1,19 +1,24 @@
-#include "window.h"
+#include "vulkan_example.h"
 
 #include <cstdint>
 
-GLFWwindow* initWindow()
+namespace VulkanExample
 {
-    glfwInit();
 
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Tell GLFW to not create an OpenGL context.
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // Disable resizing window.
+    GLFWwindow* initWindow()
+    {
+        glfwInit();
 
-    return glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-}
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); // Tell GLFW to not create an OpenGL context.
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // Disable resizing window.
 
-void terminateWindow(GLFWwindow* window)
-{
-    glfwDestroyWindow(window);
-    glfwTerminate();
+        return glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    }
+
+    void terminateWindow(GLFWwindow* window)
+    {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+    }
+
 }

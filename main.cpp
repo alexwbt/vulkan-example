@@ -1,13 +1,9 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "window.h"
-#include "vulkan.h"
-#include "physical_device.h"
-#include "logical_device.h"
-#include "surface.h"
-#include "swapchain.h"
-#include "image.h"
+#include "vulkan_example.h"
+
+using namespace VulkanExample;
 
 class HelloTriangleApplication
 {
@@ -76,7 +72,7 @@ private:
     void cleanup()
     {
         // Destroy image views.
-        destroyImageViews(logicalDevice, swapchainImageViews);
+        destroyImageViews(logicalDevice, swapchainImageViews); // image.cpp
 
         // Destroy swap chain.
         destroySwapchain(logicalDevice, swapchain); // swapchain.cpp
