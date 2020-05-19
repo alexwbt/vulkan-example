@@ -59,6 +59,8 @@ private:
         swapchainImages = retrieveSwapchainImages(logicalDevice, swapchain); // image.cpp
         // Create image views.
         swapchainImageViews = createImageViews(swapchainImages, swapchainImageFormat, logicalDevice); // image.cpp
+
+        createGraphicsPipeline();
     }
 
     void mainLoop()

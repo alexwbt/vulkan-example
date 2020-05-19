@@ -100,4 +100,10 @@ namespace VulkanExample
 
     std::vector<VkImageView> createImageViews(std::vector<VkImage> images, VkFormat imageFormat, VkDevice logicalDevice);
     void destroyImageViews(VkDevice logicalDevice, std::vector<VkImageView> imageViews);
+
+    /*
+        graphics.cpp
+    */
+
+    void createGraphicsPipeline();
 }
