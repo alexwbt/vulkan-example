@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+// Read binary data from file.
 std::vector<char> Util::readFile(const std::string& filename)
 {
     /*

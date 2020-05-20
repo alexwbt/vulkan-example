@@ -105,5 +105,5 @@ namespace VulkanExample
         graphics.cpp
     */
 
-    void createGraphicsPipeline();
+    void createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent);
 }
