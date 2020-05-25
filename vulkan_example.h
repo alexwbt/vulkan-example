@@ -105,5 +105,9 @@ namespace VulkanExample
         graphics.cpp
     */
 
-    void createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent);
+    VkRenderPass createRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat);
+    void destroyRenderPass(VkDevice logicalDevice, VkRenderPass renderPass);
+
+    VkPipelineLayout createPipelineLayout(VkDevice logicalDevice, VkExtent2D swapchainExtent);
+    void destroyPipelineLayout(VkDevice logicalDevice, VkPipelineLayout pipelineLayout);
 }

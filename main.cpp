@@ -34,6 +34,9 @@ private:
     VkFormat swapchainImageFormat;
     VkExtent2D swapchainExtent;
 
+    VkRenderPass renderPass;
+    VkPipelineLayout pipelineLayout;
+
     void init()
     {
         // Initialize GLFW and create window.
@@ -60,7 +63,10 @@ private:
         // Create image views.
         swapchainImageViews = createImageViews(swapchainImages, swapchainImageFormat, logicalDevice); // image.cpp
 
-        createGraphicsPipeline();
+        // Create render pass.
+        renderPass = createRenderPass(logicalDevice, swapchainImageFormat); // graphics.cpp
+        // Configure and create graphics pipline layout.
+        pipelineLayout = createPipelineLayout(logicalDevice, swapchainExtent); // graphics.cpp
     }
 
     void mainLoop()
@@ -73,6 +79,12 @@ private:
 
     void cleanup()
     {
+        // Destroy pipline layout.
+        destroyPipelineLayout(logicalDevice, pipelineLayout); // graphics.cpp
+
+        // Destroy render pass.
+        destroyRenderPass(logicalDevice, renderPass); // graphics.cpp
+        
         // Destroy image views.
         destroyImageViews(logicalDevice, swapchainImageViews); // image.cpp
 
