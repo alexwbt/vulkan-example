@@ -113,4 +113,9 @@ namespace VulkanExample
 
     VkPipeline createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, VkPipelineLayout pipelineLayout);
     void destroyGraphicsPipeline(VkDevice logicalDevice, VkPipeline graphicsPipeline);
+
+    /*
+        framebuffer.cpp
+    */
+
 }
