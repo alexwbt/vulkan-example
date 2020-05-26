@@ -1,5 +1,4 @@
 #include "vulkan_example.h"
-
 #include "util.h"
 
 #include <stdexcept>
@@ -15,6 +14,7 @@ namespace VulkanExample
         should be handled throughout the rendering operations.
         All of this information is wrapped in a render pass object.
     */
+    #pragma warning( disable : 26812)
     VkRenderPass createRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat)
     {
         VkAttachmentDescription colorAttachment{};
@@ -81,7 +81,8 @@ namespace VulkanExample
 
         // Create render pass.
         VkRenderPass renderPass;
-        if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        if (vkCreateRenderPass(logicalDevice, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+        {
             throw std::runtime_error("Failed to create render pass.");
         }
 
@@ -102,14 +103,53 @@ namespace VulkanExample
 
         // Create shader module.
         VkShaderModule shaderModule;
-        if (vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(logicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create shader module!");
         }
 
         return shaderModule;
     }
 
-    VkPipelineLayout createPipelineLayout(VkDevice logicalDevice, VkExtent2D swapchainExtent)
+    VkPipelineLayout createPipelineLayout(VkDevice logicalDevice)
+    {
+        /*
+            Pipeline layout.
+            You can use uniform values in shaders, which are globals similar to dynamic
+            state variables that can be changed at drawing time to alter the behavior of
+            your shaders without having to recreate them. They are commonly used to pass
+            the transformation matrix to the vertex shader, or to create texture samplers
+            in the fragment shader.
+
+            These uniform values need to be specified during pipeline creation by creating
+            a VkPipelineLayout object. Even though we won't be using them until a future chapter,
+            we are still required to create an empty pipeline layout.
+
+            Create a class member to hold this object, because we'll refer to it from other
+            functions at a later point in time:
+        */
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = 0; // Optional
+        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+
+        // Create pipeline layout.
+        VkPipelineLayout pipelineLayout;
+        if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create render pass.");
+        }
+
+        return pipelineLayout;
+    }
+
+    void destroyPipelineLayout(VkDevice logicalDevice, VkPipelineLayout pipelineLayout)
+    {
+        vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
+    }
+
+    VkPipeline createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, VkPipelineLayout pipelineLayout)
     {
         // Read shader file.
         auto vertShaderCode = Util::readFile("vert.spv");
@@ -295,43 +335,46 @@ namespace VulkanExample
         dynamicState.pDynamicStates = dynamicStates;
 
         /*
-            Pipeline layout.
-            You can use uniform values in shaders, which are globals similar to dynamic
-            state variables that can be changed at drawing time to alter the behavior of
-            your shaders without having to recreate them. They are commonly used to pass
-            the transformation matrix to the vertex shader, or to create texture samplers
-            in the fragment shader.
-
-            These uniform values need to be specified during pipeline creation by creating
-            a VkPipelineLayout object. Even though we won't be using them until a future chapter,
-            we are still required to create an empty pipeline layout.
-
-            Create a class member to hold this object, because we'll refer to it from other
-            functions at a later point in time:
+            Graphics pipeline create info.
         */
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0; // Optional
-        pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+        VkGraphicsPipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = 2;
+        pipelineInfo.pStages = shaderStages;
 
-        // Create pipeline layout.
-        VkPipelineLayout pipelineLayout;
-        if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create render pass.");
+        pipelineInfo.pVertexInputState = &vertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &inputAssembly;
+        pipelineInfo.pViewportState = &viewportState;
+        pipelineInfo.pRasterizationState = &rasterizer;
+        pipelineInfo.pMultisampleState = &multisampling;
+        pipelineInfo.pDepthStencilState = nullptr; // Optional
+        pipelineInfo.pColorBlendState = &colorBlending;
+        pipelineInfo.pDynamicState = nullptr; // Optional
+
+        pipelineInfo.layout = pipelineLayout;
+        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.subpass = 0;
+
+        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+        pipelineInfo.basePipelineIndex = -1; // Optional
+
+        // Create graphics pipeline.
+        VkPipeline graphicsPipeline;
+        if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create graphics pipeline!");
         }
 
         // Destroy used shader modules.
         vkDestroyShaderModule(logicalDevice, fragShaderModule, nullptr);
         vkDestroyShaderModule(logicalDevice, vertShaderModule, nullptr);
 
-        return pipelineLayout;
+        return graphicsPipeline;
     }
 
-    void destroyPipelineLayout(VkDevice logicalDevice, VkPipelineLayout pipelineLayout)
+    void destroyGraphicsPipeline(VkDevice logicalDevice, VkPipeline graphicsPipeline)
     {
-        vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
+        vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
     }
 
 }

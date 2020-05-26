@@ -14,7 +14,7 @@ namespace VulkanExample
     };
 
     /*
-        Swap chain is essentially a queue of images that are waiting to be presented to the screen. (framebuffer)
+        Swap chain is essentially a queue of images that are waiting to be presented to the screen.
         The general purpose of swap chain is to synchronize the presentation of images with the refresh rate of the screen.
 
         Not all graphics cards are capable of presenting images directly to a screen.

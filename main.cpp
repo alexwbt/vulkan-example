@@ -36,6 +36,7 @@ private:
 
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline;
 
     void init()
     {
@@ -65,8 +66,10 @@ private:
 
         // Create render pass.
         renderPass = createRenderPass(logicalDevice, swapchainImageFormat); // graphics.cpp
-        // Configure and create graphics pipline layout.
-        pipelineLayout = createPipelineLayout(logicalDevice, swapchainExtent); // graphics.cpp
+        // Create pipline layout.
+        pipelineLayout = createPipelineLayout(logicalDevice); // graphics.cpp
+        // Create graphics pipeline
+        graphicsPipeline = createGraphicsPipeline(logicalDevice, swapchainExtent, renderPass, pipelineLayout); // graphics.cpp
     }
 
     void mainLoop()
@@ -79,9 +82,10 @@ private:
 
     void cleanup()
     {
+        // Destroy graphics pipeline.
+        destroyGraphicsPipeline(logicalDevice, graphicsPipeline); // graphics.cpp
         // Destroy pipline layout.
         destroyPipelineLayout(logicalDevice, pipelineLayout); // graphics.cpp
-
         // Destroy render pass.
         destroyRenderPass(logicalDevice, renderPass); // graphics.cpp
         

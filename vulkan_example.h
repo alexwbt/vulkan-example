@@ -108,6 +108,9 @@ namespace VulkanExample
     VkRenderPass createRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat);
     void destroyRenderPass(VkDevice logicalDevice, VkRenderPass renderPass);
 
-    VkPipelineLayout createPipelineLayout(VkDevice logicalDevice, VkExtent2D swapchainExtent);
+    VkPipelineLayout createPipelineLayout(VkDevice logicalDevice);
     void destroyPipelineLayout(VkDevice logicalDevice, VkPipelineLayout pipelineLayout);
+
+    VkPipeline createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, VkPipelineLayout pipelineLayout);
+    void destroyGraphicsPipeline(VkDevice logicalDevice, VkPipeline graphicsPipeline);
 }
