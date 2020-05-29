@@ -118,4 +118,12 @@ namespace VulkanExample
         framebuffer.cpp
     */
 
+    std::vector<VkFramebuffer> createFramebuffers(VkDevice logicalDevice, std::vector<VkImageView> swapchainImageViews, VkRenderPass renderPass, VkExtent2D swapchainExtent);
+    void destroyFramebuffers(VkDevice logicalDevice, std::vector<VkFramebuffer> swapchainFramebuffers);
+
+    /*
+        command.cpp
+    */
+
+    
 }

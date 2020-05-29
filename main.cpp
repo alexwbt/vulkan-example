@@ -38,6 +38,8 @@ private:
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
 
+    std::vector<VkFramebuffer> swapchainFramebuffers;
+
     void init()
     {
         // Initialize GLFW and create window.
@@ -70,6 +72,9 @@ private:
         pipelineLayout = createPipelineLayout(logicalDevice); // graphics.cpp
         // Create graphics pipeline
         graphicsPipeline = createGraphicsPipeline(logicalDevice, swapchainExtent, renderPass, pipelineLayout); // graphics.cpp
+
+        // Create framebuffers.
+        swapchainFramebuffers = createFramebuffers(logicalDevice, swapchainImageViews, renderPass, swapchainExtent); // framebuffer.cpp
     }
 
     void mainLoop()
@@ -82,6 +87,9 @@ private:
 
     void cleanup()
     {
+        // Destroy framebuffers.
+        destroyFramebuffers(logicalDevice, swapchainFramebuffers; // framebuffer.cpp
+
         // Destroy graphics pipeline.
         destroyGraphicsPipeline(logicalDevice, graphicsPipeline); // graphics.cpp
         // Destroy pipline layout.
