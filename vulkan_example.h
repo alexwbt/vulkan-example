@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <optional>
+#include <stdexcept>
 
 namespace VulkanExample
 {
@@ -125,5 +126,6 @@ namespace VulkanExample
         command.cpp
     */
 
-    
+    VkCommandPool createCommandPool(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+    void destroyCommandPool(VkDevice logicalDevice, VkCommandPool commandPool);
 }

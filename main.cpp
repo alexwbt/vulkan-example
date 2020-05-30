@@ -1,5 +1,4 @@
 #include <iostream>
-#include <stdexcept>
 
 #include "vulkan_example.h"
 
@@ -40,6 +39,8 @@ private:
 
     std::vector<VkFramebuffer> swapchainFramebuffers;
 
+    VkCommandPool commandPool;
+
     void init()
     {
         // Initialize GLFW and create window.
@@ -75,6 +76,9 @@ private:
 
         // Create framebuffers.
         swapchainFramebuffers = createFramebuffers(logicalDevice, swapchainImageViews, renderPass, swapchainExtent); // framebuffer.cpp
+
+        // Create command pool.
+        commandPool = createCommandPool(logicalDevice, physicalDevice, surface); // command.cpp
     }
 
     void mainLoop()
@@ -87,6 +91,9 @@ private:
 
     void cleanup()
     {
+        // Destroy command pool.
+        destroyCommandPool(logicalDevice, commandPool); // command.cpp
+
         // Destroy framebuffers.
         destroyFramebuffers(logicalDevice, swapchainFramebuffers); // framebuffer.cpp
 

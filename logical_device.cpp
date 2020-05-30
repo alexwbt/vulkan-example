@@ -1,6 +1,5 @@
 #include "vulkan_example.h"
 
-#include <stdexcept>
 #include <set>
 
 namespace VulkanExample

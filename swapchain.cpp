@@ -1,7 +1,6 @@
 #include "vulkan_example.h"
 
 #include <algorithm>
-#include <stdexcept>
 
 namespace VulkanExample
 {
