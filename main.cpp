@@ -88,7 +88,7 @@ private:
     void cleanup()
     {
         // Destroy framebuffers.
-        destroyFramebuffers(logicalDevice, swapchainFramebuffers; // framebuffer.cpp
+        destroyFramebuffers(logicalDevice, swapchainFramebuffers); // framebuffer.cpp
 
         // Destroy graphics pipeline.
         destroyGraphicsPipeline(logicalDevice, graphicsPipeline); // graphics.cpp

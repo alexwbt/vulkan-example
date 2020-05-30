@@ -3,9 +3,9 @@
 namespace VulkanExample
 {
 
-    VkCommandPool createCommandPool()
-    {
-
-    }
+//    VkCommandPool createCommandPool()
+//    {
+//        
+//    }
 
 }

@@ -152,8 +152,8 @@ namespace VulkanExample
     VkPipeline createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, VkPipelineLayout pipelineLayout)
     {
         // Read shader file.
-        auto vertShaderCode = Util::readFile("vert.spv");
-        auto fragShaderCode = Util::readFile("frag.spv");
+        auto vertShaderCode = Util::readFile("shader/vert.spv");
+        auto fragShaderCode = Util::readFile("shader/frag.spv");
 
         // Create shader module with shader code.
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, logicalDevice);
