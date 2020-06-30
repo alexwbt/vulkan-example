@@ -12,7 +12,7 @@ namespace VulkanExample
         should be handled throughout the rendering operations.
         All of this information is wrapped in a render pass object.
     */
-    #pragma warning( disable : 26812)
+    #pragma warning (disable : 26812)
     VkRenderPass createRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat)
     {
         VkAttachmentDescription colorAttachment{};

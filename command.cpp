@@ -40,4 +40,48 @@ namespace VulkanExample
         vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
     }
 
+    std::vector<VkCommandBuffer> allocateCommandBuffers(VkDevice logicalDevice, VkCommandPool commandPool, size_t size)
+    {
+        std::vector<VkCommandBuffer> commandBuffers(size);
+
+        /*
+            Command buffers are allocated with the vkAllocateCommandBuffers function,
+            which takes a VkCommandBufferAllocateInfo struct as parameter that specifies
+            the command pool and number of buffers to allocate.
+        */
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = commandPool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+
+        // Create command buffers.
+        if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to allocate command buffers.");
+        }
+
+        /*
+            Starting command buffer recording.
+
+            We begin recording a command buffer by calling vkBeginCommandBuffer with
+            a small VkCommandBufferBeginInfo structure as argument that specifies some
+            details about the usage of this specific command buffer.
+        */
+        for (size_t i = 0; i < commandBuffers.size(); i++)
+        {
+            VkCommandBufferBeginInfo beginInfo{};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = 0;
+            beginInfo.pInheritanceInfo = nullptr;
+
+            if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to begin recording command buffer.");
+            }
+        }
+
+        return commandBuffers;
+    }
+
 }

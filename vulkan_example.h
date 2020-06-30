@@ -128,4 +128,6 @@ namespace VulkanExample
 
     VkCommandPool createCommandPool(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
     void destroyCommandPool(VkDevice logicalDevice, VkCommandPool commandPool);
+
+    std::vector<VkCommandBuffer> allocateCommandBuffers(VkDevice logicalDevice, VkCommandPool commandPool, size_t size);
 }

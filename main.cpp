@@ -40,6 +40,7 @@ private:
     std::vector<VkFramebuffer> swapchainFramebuffers;
 
     VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     void init()
     {
@@ -79,6 +80,23 @@ private:
 
         // Create command pool.
         commandPool = createCommandPool(logicalDevice, physicalDevice, surface); // command.cpp
+        // Allocate command buffers.
+        commandBuffers = allocateCommandBuffers(logicalDevice, commandPool, swapchainFramebuffers.size());
+
+        // testing
+        /*
+            Starting a render pass.
+
+            Drawing starts by beginning the render pass with vkCmdBeginRenderPass.
+            The render pass is configured using some parameters in a VkRenderPassBeginInfo struct.
+        */
+        for (size_t i = 0; i < swapchainFramebuffers.size(); i++)
+        {
+            VkRenderPassBeginInfo renderPassInfo{};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = swapchainFramebuffers[i];
+        }
     }
 
     void mainLoop()
