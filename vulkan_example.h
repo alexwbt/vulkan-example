@@ -131,4 +131,12 @@ namespace VulkanExample
 
     std::vector<VkCommandBuffer> allocateCommandBuffers(VkDevice logicalDevice, VkCommandPool commandPool, size_t size);
     void beginRenderPass(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkPipeline graphicsPipeline, std::vector<VkCommandBuffer> commandBuffers, std::vector<VkFramebuffer> swapchainFramebuffers);
+
+    /*
+        semaphore.cpp
+    */
+
+    VkSemaphore createSemaphore(VkDevice logicalDevice);
+    void destroySemaphore(VkDevice logicalDevice, VkSemaphore semaphore);
+
 }
