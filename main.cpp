@@ -42,8 +42,19 @@ private:
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
 
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+    /*
+        If MAX_FRAMES_IN_FLIGHT is higher than the number of swap chain images or vkAcquireNextImageKHR
+        returns images out-of-order then it's possible that we may start rendering to a swap chain image
+        that is already in flight. To avoid this, we need to track for each swap chain image if a frame in
+        flight is currently using it. This mapping will refer to frames in flight by their fences so we'll
+        immediately have a synchronization object to wait on before a new frame can use that image.
+    */
+    std::vector<VkFence> imagesInFlight;
+    size_t currentFrame = 0;
 
     void init()
     {
@@ -89,15 +100,23 @@ private:
         beginRenderPass(renderPass, swapchainExtent, graphicsPipeline, commandBuffers, swapchainFramebuffers); // command.cpp
 
         // Create semaphores.
-        imageAvailableSemaphore = createSemaphore(logicalDevice); // semaphore.cpp
-        renderFinishedSemaphore = createSemaphore(logicalDevice); // semaphore.cpp
+        imageAvailableSemaphores = createSemaphores(logicalDevice, MAX_FRAMES_IN_FLIGHT); // semaphore.cpp
+        renderFinishedSemaphores = createSemaphores(logicalDevice, MAX_FRAMES_IN_FLIGHT); // semaphore.cpp
+        // Create fences.
+        inFlightFences = createFences(logicalDevice, MAX_FRAMES_IN_FLIGHT); // fence.cpp
+        imagesInFlight.resize(swapchainImages.size(), VK_NULL_HANDLE);
     }
 
     void cleanup()
     {
+        // Wait for the logical device to finish operations before clean up.
+        vkDeviceWaitIdle(logicalDevice);
+
+        // Destroy fences.
+        destroyFences(logicalDevice, inFlightFences); // fence.cpp
         // Destroy semaphores.
-        destroySemaphore(logicalDevice, renderFinishedSemaphore); // semaphore.cpp
-        destroySemaphore(logicalDevice, imageAvailableSemaphore); // semaphore.cpp
+        destroySemaphores(logicalDevice, renderFinishedSemaphores); // semaphore.cpp
+        destroySemaphores(logicalDevice, imageAvailableSemaphores); // semaphore.cpp
 
         // Destroy command pool.
         destroyCommandPool(logicalDevice, commandPool); // command.cpp
@@ -165,15 +184,29 @@ private:
     */
     void render()
     {
+        vkWaitForFences(logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(logicalDevice, 1, &inFlightFences[currentFrame]);
+
         // Acquiring an image from the swap chain.
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(logicalDevice, swapchain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(logicalDevice, swapchain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+        // Check if a previous frame is using this image (i.e. there is its fence to wait on)
+        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+        {
+            vkWaitForFences(logicalDevice, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+        }
+        // Mark the image as now being in use by this frame
+        imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+
+        // Reset fence before using it.
+        vkResetFences(logicalDevice, 1, &inFlightFences[currentFrame]);
 
         // Submitting the command buffer.
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+        VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
         VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
@@ -181,11 +214,11 @@ private:
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 
-        VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+        VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit command buffer.");
         }
@@ -204,6 +237,8 @@ private:
         presentInfo.pImageIndices = &imageIndex;
 
         vkQueuePresentKHR(presentQueue, &presentInfo);
+        
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 };
 

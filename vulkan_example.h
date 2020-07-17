@@ -136,7 +136,14 @@ namespace VulkanExample
         semaphore.cpp
     */
 
-    VkSemaphore createSemaphore(VkDevice logicalDevice);
-    void destroySemaphore(VkDevice logicalDevice, VkSemaphore semaphore);
+    std::vector<VkSemaphore> createSemaphores(VkDevice logicalDevice, size_t size);
+    void destroySemaphores(VkDevice logicalDevice, std::vector<VkSemaphore> semaphores);
+
+    /*
+        fence.cpp
+    */
+
+    std::vector<VkFence> createFences(VkDevice logicalDevice, size_t size);
+    void destroyFences(VkDevice logicalDevice, std::vector<VkFence> fences);
 
 }

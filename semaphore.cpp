@@ -3,24 +3,30 @@
 namespace VulkanExample
 {
 
-    VkSemaphore createSemaphore(VkDevice logicalDevice)
+    std::vector<VkSemaphore> createSemaphores(VkDevice logicalDevice, size_t size)
     {
-        VkSemaphore semaphore;
+        std::vector<VkSemaphore> semaphores(size);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
         semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-        if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &semaphore) != VK_SUCCESS)
+        for (size_t i = 0; i < size; i++)
         {
-            throw std::runtime_error("Failed to create semaphore.");
+            if (vkCreateSemaphore(logicalDevice, &semaphoreInfo, nullptr, &semaphores[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("Failed to create semaphores.");
+            }
         }
 
-        return semaphore;
+        return semaphores;
     }
 
-    void destroySemaphore(VkDevice logicalDevice, VkSemaphore semaphore)
+    void destroySemaphores(VkDevice logicalDevice, std::vector<VkSemaphore> semaphores)
     {
-        vkDestroySemaphore(logicalDevice, semaphore, nullptr);
+        for (size_t i = 0; i < semaphores.size(); i++)
+        {
+            vkDestroySemaphore(logicalDevice, semaphores[i], nullptr);
+        }
     }
 
 }
