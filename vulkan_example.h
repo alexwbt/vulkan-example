@@ -1,149 +1,118 @@
 #pragma once
 
+#pragma warning (disable : 26812)
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 
 #include <vector>
 #include <optional>
-#include <stdexcept>
 
-namespace VulkanExample
+const std::vector<const char*> validationLayers = {
+    "VK_LAYER_KHRONOS_validation"
+};
+
+const std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+struct QueueFamilyIndices
 {
-    /*
-        window.cpp
-    */
+    std::optional<uint32_t> graphicsFamily; // For rendering (drawing commands).
+    std::optional<uint32_t> presentFamily; // For presetning render to window surface.
 
-    const uint32_t WIDTH = 800;
-    const uint32_t HEIGHT = 600;
-
-    GLFWwindow* initWindow(); // window.cpp
-    void terminateWindow(GLFWwindow* window); // window.cpp
-
-    /*
-        vulkan.cpp
-    */
-
-    VkInstance initVulkan(VkApplicationInfo info);
-    void destroyVulkanInstance(VkInstance instance);
-
-    VkApplicationInfo createHelloTriangleAppInfo();
-
-    /*
-        surface.cpp
-    */
-
-    VkSurfaceKHR createSurface(VkInstance instance, GLFWwindow* window);
-    void destroySurface(VkInstance instance, VkSurfaceKHR surface);
-
-    /*
-        physical_device.cpp
-    */
-
-    const std::vector<const char*> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
-
-    VkPhysicalDevice selectPhysicalDevice(VkInstance instance, VkSurfaceKHR surface);
-
-    /*
-        logical_device.cpp
-    */
-
-    VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkQueue* graphicsQueue, VkQueue* presentQueue);
-    void destroyLogicalDevice(VkDevice device);
-
-    /*
-        queue.cpp
-    */
-
-    struct QueueFamilyIndices
+    bool isComplete()
     {
-        std::optional<uint32_t> graphicsFamily; // For rendering (drawing commands).
-        std::optional<uint32_t> presentFamily; // For presetning render to window surface.
-
-        bool isComplete()
-        {
-            return graphicsFamily.has_value() && presentFamily.has_value();
-        }
-    };
-
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-
-    /*
-        layer.cpp
-    */
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
 
 #ifdef NDEBUG
-    const bool enableValidationLayers = false;
+static const bool enableValidationLayers = false;
 #else
-    const bool enableValidationLayers = true;
+static const bool enableValidationLayers = true;
 #endif
 
-    const std::vector<const char*> validationLayers = {
-        "VK_LAYER_KHRONOS_validation"
-    };
+class VulkanExample
+{
+public:
+    static GLFWwindow* window;
+    static int width, height;
 
-    bool checkValidationLayerSupport();
+    static VkInstance instance;
 
-    /*
-        swapchain.cpp
-    */
+    static VkSurfaceKHR surface;
 
-    VkSwapchainKHR createSwapchain(VkPhysicalDevice physicalDevice, VkDevice logicalDevice, VkSurfaceKHR surface, VkFormat* swapchainImageFormat, VkExtent2D* swapchainExtent);
-    void destroySwapchain(VkDevice logicalDevice, VkSwapchainKHR swapchain);
+    static VkPhysicalDevice physicalDevice;
 
-    /*
-        image.cpp
-    */
+    static VkDevice logicalDevice;
+    static VkQueue graphicsQueue;
+    static VkQueue presentQueue;
 
-    std::vector<VkImage> retrieveSwapchainImages(VkDevice logicalDevice, VkSwapchainKHR swapchain);
+    static VkSwapchainKHR swapchain;
+    static std::vector<VkImage> swapchainImages;
+    static std::vector<VkImageView> swapchainImageViews;
+    static VkFormat swapchainImageFormat;
+    static VkExtent2D swapchainExtent;
 
-    std::vector<VkImageView> createImageViews(std::vector<VkImage> images, VkFormat imageFormat, VkDevice logicalDevice);
-    void destroyImageViews(VkDevice logicalDevice, std::vector<VkImageView> imageViews);
+    static VkRenderPass renderPass;
+    static VkPipelineLayout pipelineLayout;
+    static VkPipeline graphicsPipeline;
 
-    /*
-        graphics.cpp
-    */
+    static std::vector<VkFramebuffer> swapchainFramebuffers;
 
-    VkRenderPass createRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat);
-    void destroyRenderPass(VkDevice logicalDevice, VkRenderPass renderPass);
+    static VkCommandPool commandPool;
+    static std::vector<VkCommandBuffer> commandBuffers;
 
-    VkPipelineLayout createPipelineLayout(VkDevice logicalDevice);
-    void destroyPipelineLayout(VkDevice logicalDevice, VkPipelineLayout pipelineLayout);
+    static const int MAX_FRAMES_IN_FLIGHT = 2;
+    static std::vector<VkSemaphore> imageAvailableSemaphores;
+    static std::vector<VkSemaphore> renderFinishedSemaphores;
+    static std::vector<VkFence> inFlightFences;
+    static std::vector<VkFence> imagesInFlight;
+    static size_t currentFrame;
 
-    VkPipeline createGraphicsPipeline(VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, VkPipelineLayout pipelineLayout);
-    void destroyGraphicsPipeline(VkDevice logicalDevice, VkPipeline graphicsPipeline);
+    static bool framebufferResized;
 
-    /*
-        framebuffer.cpp
-    */
+    static void initWindow();
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+    static void terminateWindow();
+    static void initVulkan(VkApplicationInfo info);
+    static void destroyVulkanInstance();
+    static void createSurface();
+    static void destroySurface();
+    static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    static void selectPhysicalDevice();
+    static void waitIdle();
+    static void createLogicalDevice();
+    static void destroyLogicalDevice();
+    static bool checkValidationLayerSupport();
+    static void createSwapchain();
+    static void destroySwapchain();
+    static void retrieveSwapchainImages();
+    static void createImageViews();
+    static void destroyImageViews();
+    static void createRenderPass();
+    static void destroyRenderPass();
+    static void createPipelineLayout();
+    static void destroyPipelineLayout();
+    static void createGraphicsPipeline();
+    static void destroyGraphicsPipeline();
+    static void createFramebuffers();
+    static void freeCommandBuffers();
+    static void destroyFramebuffers();
+    static void createCommandPool();
+    static void destroyCommandPool();
+    static void allocateCommandBuffers();
+    static void beginRenderPass();
+    static void createSyncObjects();
+    static void destroySyncObjects();
 
-    std::vector<VkFramebuffer> createFramebuffers(VkDevice logicalDevice, std::vector<VkImageView> swapchainImageViews, VkRenderPass renderPass, VkExtent2D swapchainExtent);
-    void destroyFramebuffers(VkDevice logicalDevice, std::vector<VkFramebuffer> swapchainFramebuffers);
+    static void init(VkApplicationInfo appInfo);
+    static void cleanup();
+    static void initSwapchain();
+    static void cleanupSwapchain();
+    static void recreateSwapchain();
+    static void render();
 
-    /*
-        command.cpp
-    */
-
-    VkCommandPool createCommandPool(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-    void destroyCommandPool(VkDevice logicalDevice, VkCommandPool commandPool);
-
-    std::vector<VkCommandBuffer> allocateCommandBuffers(VkDevice logicalDevice, VkCommandPool commandPool, size_t size);
-    void beginRenderPass(VkRenderPass renderPass, VkExtent2D swapchainExtent, VkPipeline graphicsPipeline, std::vector<VkCommandBuffer> commandBuffers, std::vector<VkFramebuffer> swapchainFramebuffers);
-
-    /*
-        semaphore.cpp
-    */
-
-    std::vector<VkSemaphore> createSemaphores(VkDevice logicalDevice, size_t size);
-    void destroySemaphores(VkDevice logicalDevice, std::vector<VkSemaphore> semaphores);
-
-    /*
-        fence.cpp
-    */
-
-    std::vector<VkFence> createFences(VkDevice logicalDevice, size_t size);
-    void destroyFences(VkDevice logicalDevice, std::vector<VkFence> fences);
-
-}
+};
