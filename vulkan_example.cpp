@@ -9,39 +9,28 @@
 #include "util.h"
 
 GLFWwindow* VulkanExample::window;
-// int VulkanExample::width, VulkanExample::height;
-
 VkInstance VulkanExample::instance;
-
 VkSurfaceKHR VulkanExample::surface;
-
 VkPhysicalDevice VulkanExample::physicalDevice;
-
 VkDevice VulkanExample::logicalDevice;
 VkQueue VulkanExample::graphicsQueue;
 VkQueue VulkanExample::presentQueue;
-
 VkSwapchainKHR VulkanExample::swapchain;
 std::vector<VkImage> VulkanExample::swapchainImages;
 std::vector<VkImageView> VulkanExample::swapchainImageViews;
 VkFormat VulkanExample::swapchainImageFormat;
 VkExtent2D VulkanExample::swapchainExtent;
-
 VkRenderPass VulkanExample::renderPass;
 VkPipelineLayout VulkanExample::pipelineLayout;
 VkPipeline VulkanExample::graphicsPipeline;
-
 std::vector<VkFramebuffer> VulkanExample::swapchainFramebuffers;
-
 VkCommandPool VulkanExample::commandPool;
 std::vector<VkCommandBuffer> VulkanExample::commandBuffers;
-
 std::vector<VkSemaphore> VulkanExample::imageAvailableSemaphores;
 std::vector<VkSemaphore> VulkanExample::renderFinishedSemaphores;
 std::vector<VkFence> VulkanExample::inFlightFences;
 std::vector<VkFence> VulkanExample::imagesInFlight;
 size_t VulkanExample::currentFrame = 0;
-
 bool VulkanExample::framebufferResized = false;
 
 void VulkanExample::initWindow()
@@ -63,7 +52,6 @@ void VulkanExample::terminateWindow()
     glfwDestroyWindow(window);
     glfwTerminate();
 }
-
 void VulkanExample::initVulkan(VkApplicationInfo info)
 {
     /*
@@ -129,7 +117,6 @@ void VulkanExample::destroyVulkanInstance()
 {
     vkDestroyInstance(instance, nullptr);
 }
-
 // Create window surface to establish the connection between Vulkan and the window system to present results to the screen.
 // Needs to be created right after the instance creation.
 void VulkanExample::createSurface()
@@ -143,7 +130,6 @@ void VulkanExample::destroySurface()
 {
     vkDestroySurfaceKHR(instance, surface, nullptr);
 }
-
 // Check which queue families(that supports the commands that we want to use) are supperted.
 QueueFamilyIndices VulkanExample::findQueueFamilies(VkPhysicalDevice device)
 {
@@ -179,7 +165,6 @@ QueueFamilyIndices VulkanExample::findQueueFamilies(VkPhysicalDevice device)
 
     return indices;
 }
-
 // Check if physical device(GPU) supports reqruied extensions.
 bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice)
 {
@@ -238,7 +223,6 @@ void VulkanExample::selectPhysicalDevice()
         throw std::runtime_error("failed to find a suitable GPU!");
     }
 }
-
 // Wait for the logical device to finish operations before clean up.
 void VulkanExample::waitIdle()
 {
@@ -328,7 +312,6 @@ void VulkanExample::destroyLogicalDevice()
     */
     vkDestroyDevice(logicalDevice, nullptr);
 }
-
 bool VulkanExample::checkValidationLayerSupport()
 {
     uint32_t layerCount;
@@ -356,7 +339,6 @@ bool VulkanExample::checkValidationLayerSupport()
 
     return true;
 }
-
 struct SwapchainSupportDetails
 {
     VkSurfaceCapabilitiesKHR capabilities{};
@@ -570,7 +552,6 @@ void VulkanExample::destroySwapchain()
 {
     vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
 }
-
 /*
     Revrieve handles of VkImages from swap chain.
 
@@ -649,7 +630,6 @@ void VulkanExample::destroyImageViews()
         vkDestroyImageView(logicalDevice, imageView, nullptr);
     }
 }
-
 /*
     We need to tell Vulkan about the framebuffer attachments that will
     be used while rendering.
@@ -1013,7 +993,6 @@ void VulkanExample::destroyGraphicsPipeline()
 {
     vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
 }
-
 /*
     The attachments specified during render pass creation are bound by wrapping them into a VkFramebuffer object.
     A framebuffer object references all of the VkImageView objects that represent the attachments.
@@ -1058,7 +1037,6 @@ void VulkanExample::destroyFramebuffers()
         vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
     }
 }
-
 void VulkanExample::createCommandPool()
 {
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
@@ -1165,7 +1143,6 @@ void VulkanExample::beginRenderPass()
         }
     }
 }
-
 void VulkanExample::createSyncObjects()
 {
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1194,7 +1171,6 @@ void VulkanExample::destroySyncObjects()
         vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
     }
 }
-
 /*
         The render function will perform the following operations:
 
@@ -1288,7 +1264,6 @@ void VulkanExample::render()
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
-
 void VulkanExample::init(VkApplicationInfo appInfo)
 {
     initWindow();
@@ -1299,7 +1274,6 @@ void VulkanExample::init(VkApplicationInfo appInfo)
     initSwapchain();
     createSyncObjects();
 }
-
 void VulkanExample::cleanup()
 {
     waitIdle();
@@ -1311,7 +1285,6 @@ void VulkanExample::cleanup()
     destroyVulkanInstance();
     terminateWindow();
 }
-
 void VulkanExample::initSwapchain()
 {
     createSwapchain();
@@ -1326,7 +1299,6 @@ void VulkanExample::initSwapchain()
     allocateCommandBuffers();
     beginRenderPass();
 }
-
 void VulkanExample::cleanupSwapchain()
 {
     destroyFramebuffers();
@@ -1337,7 +1309,6 @@ void VulkanExample::cleanupSwapchain()
     destroyImageViews();
     destroySwapchain();
 }
-
 void VulkanExample::recreateSwapchain()
 {
     int width = 0, height = 0;
