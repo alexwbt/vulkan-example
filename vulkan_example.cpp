@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "util.h"
+#include "vertex_buffer.h"
 
 GLFWwindow* VulkanExample::window;
 VkInstance VulkanExample::instance;
@@ -117,8 +118,6 @@ void VulkanExample::destroyVulkanInstance()
 {
     vkDestroyInstance(instance, nullptr);
 }
-// Create window surface to establish the connection between Vulkan and the window system to present results to the screen.
-// Needs to be created right after the instance creation.
 void VulkanExample::createSurface()
 {
     if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
@@ -130,7 +129,6 @@ void VulkanExample::destroySurface()
 {
     vkDestroySurfaceKHR(instance, surface, nullptr);
 }
-// Check which queue families(that supports the commands that we want to use) are supperted.
 QueueFamilyIndices VulkanExample::findQueueFamilies(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices;
@@ -165,7 +163,6 @@ QueueFamilyIndices VulkanExample::findQueueFamilies(VkPhysicalDevice device)
 
     return indices;
 }
-// Check if physical device(GPU) supports reqruied extensions.
 bool checkDeviceExtensionSupport(VkPhysicalDevice physicalDevice)
 {
     // Get number of supported extensions from device.
@@ -195,8 +192,6 @@ bool isDeviceSuitable(VkPhysicalDevice physicalDevice)
 
     return indices.isComplete() && extensionsSupported;
 }
-// Select best suited physical device(graphics card).
-// VkPhysicalDevice object will be implicitly destroyed when the VkInstance is destroyed
 void VulkanExample::selectPhysicalDevice()
 {
     physicalDevice = VK_NULL_HANDLE;
@@ -223,12 +218,10 @@ void VulkanExample::selectPhysicalDevice()
         throw std::runtime_error("failed to find a suitable GPU!");
     }
 }
-// Wait for the logical device to finish operations before clean up.
 void VulkanExample::waitIdle()
 {
     vkDeviceWaitIdle(logicalDevice);
 }
-// Create logical device and retrieve queue handle to interface physical device.
 void VulkanExample::createLogicalDevice()
 {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
@@ -339,25 +332,6 @@ bool VulkanExample::checkValidationLayerSupport()
 
     return true;
 }
-struct SwapchainSupportDetails
-{
-    VkSurfaceCapabilitiesKHR capabilities{};
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
-};
-/*
-    Swap chain is essentially a queue of images that are waiting to be presented to the screen.
-    The general purpose of swap chain is to synchronize the presentation of images with the refresh rate of the screen.
-
-    Not all graphics cards are capable of presenting images directly to a screen.
-    And since image presentation is heavily tied into the window system and the surfaces associated with windows,
-    it is not part of the Vulkan core. You have to enable the VK_KHR_swapchain device extension after querying for its support.
-
-    Besides from availability, there are three more properties we need to check:
-    - Basic surface capabilities (min/max number of images in swap chain, min/max width and height of images)
-    - Surface formats (pixel format, color space)
-    - Available presentation modes
-*/
 SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice device)
 {
     SwapchainSupportDetails details;
@@ -385,14 +359,6 @@ SwapchainSupportDetails querySwapchainSupport(VkPhysicalDevice device)
 
     return details;
 }
-/*
-    To find the best settings for the swap chain.
-    There are three types of settings to determine:
-    - Surface format (color depth)
-    - Presentation mode (conditions for "swapping" images to the screen)
-    - Swap extent (resolution of images in swap chain)
-*/
-// Choose swap chain surface format (color depth)
 VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
     // Each VkSurfaceFormatKHR entry contains a format and a colorSpace member.
@@ -409,14 +375,6 @@ VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>
     // Use first format if failed.
     return availableFormats[0];
 }
-/*
-    Presentation mode represents the conditions for showing images to the screen.
-    There are four possible modes available in Vulkan :
-    - VK_PRESENT_MODE_IMMEDIATE_KHR: Rendered images transfer to the screen right away.
-    - VK_PRESENT_MODE_FIFO_KHR: Stores rendered images to a queue. If the queue is full, the program has to wait.
-    - VK_PRESENT_MODE_FIFO_RELAXED_KHR: When the queue is empty, the image is transferred right away instead of waiting. May result un visible tearing.
-    - VK_PRESENT_MODE_MAILBOX_KHR: When the queue is full, the images is queue are replaced with newer ones instead of blocking the application.
-*/
 VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
     for (const auto& availablePresentMode : availablePresentModes)
@@ -431,11 +389,6 @@ VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& avai
     // Only the VK_PRESENT_MODE_FIFO_KHR mode is guanranteed to be available.
     return VK_PRESENT_MODE_FIFO_KHR;
 }
-/*
-    Swap extent is the resolution of the swap change images.
-    Always equal to the resolution of the presentation window.
-    The range of the possible resolutions is defined in VkSurfaceCapabilitiesKHR.
-*/
 VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
     if (capabilities.currentExtent.width != UINT32_MAX)
@@ -461,7 +414,6 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
         return actualExtent;
     }
 }
-// Create swap chain.
 void VulkanExample::createSwapchain()
 {
     // Get supported format, present mode and extent.
@@ -552,13 +504,6 @@ void VulkanExample::destroySwapchain()
 {
     vkDestroySwapchainKHR(logicalDevice, swapchain, nullptr);
 }
-/*
-    Revrieve handles of VkImages from swap chain.
-
-    The images were created by the implementation
-    for the swap chain and they will be automatically
-    cleaned up once the swap chain has been destroyed.
-*/
 void VulkanExample::retrieveSwapchainImages()
 {
     uint32_t imageCount;
@@ -566,15 +511,6 @@ void VulkanExample::retrieveSwapchainImages()
     swapchainImages.resize(imageCount);
     vkGetSwapchainImagesKHR(logicalDevice, swapchain, &imageCount, swapchainImages.data());
 }
-/*
-    VkImageView is required to use any VkImage.
-    It describes how to access the image and which part of
-    the image to access, for example if it should be treated
-    as a 2D texture depth texture without any mipmapping levels.
-
-    An image view is sufficient to start using an image as a texture,
-    but it's not quite ready to be used as a render target just yet.
-*/
 void VulkanExample::createImageViews()
 {
     swapchainImageViews.resize(swapchainImages.size());
@@ -622,7 +558,6 @@ void VulkanExample::createImageViews()
             throw std::runtime_error("failed to create image views!");
     }
 }
-// Destroy image views.
 void VulkanExample::destroyImageViews()
 {
     for (auto imageView : swapchainImageViews)
@@ -630,14 +565,6 @@ void VulkanExample::destroyImageViews()
         vkDestroyImageView(logicalDevice, imageView, nullptr);
     }
 }
-/*
-    We need to tell Vulkan about the framebuffer attachments that will
-    be used while rendering.
-    We need to specify how many color and depth buffers there will be,
-    how many samples to use for each of them and how their contents
-    should be handled throughout the rendering operations.
-    All of this information is wrapped in a render pass object.
-*/
 void VulkanExample::createRenderPass()
 {
     VkAttachmentDescription colorAttachment{};
@@ -812,10 +739,12 @@ void VulkanExample::createGraphicsPipeline()
     */
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+    auto bindingDescription = Vertex::getBindingDescription();
+    auto attributeDescriptions = Vertex::getAttributeDescriptions();
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     /*
         Input assembly state create info.
@@ -993,15 +922,6 @@ void VulkanExample::destroyGraphicsPipeline()
 {
     vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
 }
-/*
-    The attachments specified during render pass creation are bound by wrapping them into a VkFramebuffer object.
-    A framebuffer object references all of the VkImageView objects that represent the attachments.
-    In our case that will be only a single one: the color attachment.
-    However, the image that we have to use for the attachment depends
-    on which image the swap chain returns when we retrieve one for presentation.
-    That means that we have to create a framebuffer for all of the images in the
-    swap chain and use the one that corresponds to the retrieved image at drawing time.
-*/
 void VulkanExample::createFramebuffers()
 {
     swapchainFramebuffers.resize(swapchainImageViews.size());
@@ -1110,12 +1030,6 @@ void VulkanExample::allocateCommandBuffers()
         }
     }
 }
-/*
-    Starting a render pass.
-
-    Drawing starts by beginning the render pass with vkCmdBeginRenderPass.
-    The render pass is configured using some parameters in a VkRenderPassBeginInfo struct.
-*/
 void VulkanExample::beginRenderPass()
 {
     for (size_t i = 0; i < commandBuffers.size(); i++)
@@ -1171,29 +1085,7 @@ void VulkanExample::destroySyncObjects()
         vkDestroyFence(logicalDevice, inFlightFences[i], nullptr);
     }
 }
-/*
-        The render function will perform the following operations:
 
-        - Acquire an image from the swap chain
-        - Execute the command buffer with that image as attachment in the framebuffer
-        - Return the image to the swap chain for presentation
-
-        Each of these events is set in motion using a single function call,
-        but they are executed asynchronously. The function calls will return before
-        the operations are actually finished and the order of execution is also undefined.
-        That is unfortunate, because each of the operations depends on the previous one finishing.
-
-        There are two ways of synchronizing swap chain events: fences and semaphores.
-        They're both objects that can be used for coordinating operations by having one
-        operation signal and another operation wait for a fence or semaphore to go from
-        the unsignaled to signaled state.
-
-        The difference is that the state of fences can be accessed from your program using
-        calls like vkWaitForFences and semaphores cannot be. Fences are mainly designed to
-        synchronize your application itself with rendering operation, whereas semaphores are
-        used to synchronize operations within or across command queues. We want to synchronize
-        the queue operations of draw commands and presentation, which makes semaphores the best fit.
-    */
 void VulkanExample::render()
 {
     vkWaitForFences(logicalDevice, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);

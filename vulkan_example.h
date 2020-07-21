@@ -19,13 +19,20 @@ const std::vector<const char*> deviceExtensions = {
 
 struct QueueFamilyIndices
 {
-    std::optional<uint32_t> graphicsFamily; // For rendering (drawing commands).
-    std::optional<uint32_t> presentFamily; // For presetning render to window surface.
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
 
     bool isComplete()
     {
         return graphicsFamily.has_value() && presentFamily.has_value();
     }
+};
+
+struct SwapchainSupportDetails
+{
+    VkSurfaceCapabilitiesKHR capabilities{};
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
 };
 
 #ifdef NDEBUG
