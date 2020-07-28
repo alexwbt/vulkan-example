@@ -15,17 +15,17 @@ int main()
         appInfo.pEngineName = "No Engine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_0;
-        VulkanExample::init(appInfo);
+        VK::init(appInfo);
 
-        while (!glfwWindowShouldClose(VulkanExample::window))
+        while (!glfwWindowShouldClose(VK::window))
         {
             glfwPollEvents();
-            VulkanExample::render();
+            VK::render();
         }
 
-        VulkanExample::cleanup();
+        VK::cleanup();
     }
-    catch (const std::exception& e)
+    catch (const std::exception & e)
     {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
